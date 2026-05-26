@@ -14,20 +14,60 @@ import chisel3.util._
 class Controller extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+// TODO: Define IO ports of a the component as stated in the documentation
+    val rxd = Input(Bool())
+    val done = Input(Bool())
+    val rst = Input(Bool())
+
+    // Outputs
+    val enable = Output(Bool())
+    val valid = Output(Bool())
     })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
+//TODO: Define internal variables (registers and/or wires), if needed
+
+ val idle :: receive :: Nil = Enum(2)
+
+  // State register
+  val state = RegInit(idle)
+
+  // Default outputs
+  io.enable := false.B
+  io.valid := false.B
+
+  
 
   // state machine
-  /* 
-   * TODO: Describe functionality if the controller as a state machine
-   */
+// TODO: Describe functionality if the controller as a state machine
+ switch(state){
+
+    is(idle){
+
+      when(io.rst){
+        state := idle
+      }
+
+      .elsewhen(io.rxd === false.B){
+        state := receive
+      }
+    }
+
+    is(receive){
+
+      io.enable := true.B
+
+      when(io.rst){
+        state := idle
+      }
+
+      .elsewhen(io.done){
+        io.valid := true.B
+        state := idle
+      }
+    }
+  }
+
 
 }
 
@@ -36,20 +76,38 @@ class Controller extends Module{
 class Counter extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+  //TODO: Define IO ports of a the component as stated in the documentation
+        // Inputs
+    val enable = Input(Bool())
+    val rst = Input(Bool())
+
+    // Outputs
+    val done = Output(Bool())
     })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
+// TODO: Define internal variables (registers and/or wires), if needed
+    val count = RegInit(0.U(4.W))
 
   // state machine
-  /* 
-   * TODO: Describe functionality if the counter as a state machine
-   */
+ //TODO: Describe functionality if the counter as a state machine
+    io.done := false.B
+
+  when(io.rst){
+    count := 0.U
+  }
+
+  .elsewhen(io.enable){
+
+    when(count === 7.U){
+      io.done := true.B
+      count := 0.U
+    }
+
+    .otherwise{
+      count := count + 1.U
+    }
+  }
 
 
 }
@@ -58,20 +116,37 @@ class Counter extends Module{
 class ShiftRegister extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+  // TODO: Define IO ports of a the component as stated in the documentation
+         val enable = Input(Bool())
+    val rst = Input(Bool())
+    val rxd = Input(Bool())
+
+    // Output
+    val data = Output(UInt(8.W))
     })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
+//TODO: Define internal variables (registers and/or wires), if needed
+   val shiftReg = RegInit(0.U(8.W))
 
   // functionality
-  /* 
-   * TODO: Describe functionality if the shift register
-   */
+//TODO: Describe functionality if the shift register
+// Shift functionality
+  when(io.rst){
+    shiftReg := 0.U
+  }
+
+  .elsewhen(io.enable){
+
+    shiftReg := Cat(
+      shiftReg(6,0),
+      io.rxd
+    )
+  }
+
+  // Output connection
+  io.data := shiftReg
+   
 }
 
 /** 
@@ -88,25 +163,48 @@ class ShiftRegister extends Module{
 class ReadSerial extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+  // TODO: Define IO ports of a the component as stated in the documentation
+         // Inputs
+    val rxd = Input(Bool())
+    val rst = Input(Bool())
+
+    // Outputs
+    val data = Output(UInt(8.W))
+    val valid = Output(Bool())
     })
 
 
   // instanciation of modules
-  /* 
-   * TODO: Instanciate the modules that you need
-   */
+ //TODO: Instanciate the modules that you need
+   val controller = Module(new Controller())
+  val counter = Module(new Counter())
+  val shiftReg = Module(new ShiftRegister())
+   
 
   // connections between modules
-  /* 
-   * TODO: connect the signals between the modules
-   */
+// TODO: connect the signals between the modules
+  // Controller connections
+  controller.io.rxd := io.rxd
+  controller.io.done := counter.io.done
+  controller.io.rst := io.rst
+
+
+  // Counter connections
+  counter.io.enable := controller.io.enable
+  counter.io.rst := io.rst
+
+
+  // Shift Register connections
+  shiftReg.io.enable := controller.io.enable
+  shiftReg.io.rst := io.rst
+  shiftReg.io.rxd := io.rxd
+
+   
 
   // global I/O 
-  /* 
-   * TODO: Describe output behaviour based on the input values and the internal signals
-   */
+// TODO: Describe output behaviour based on the input values and the internal signals
+    // Global outputs
+  io.data := shiftReg.io.data
+  io.valid := controller.io.valid
 
 }

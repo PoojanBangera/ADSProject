@@ -33,8 +33,8 @@ class Controller extends Module{
   val state = RegInit(idle)
 
   // Default outputs
-  io.enable := false.B
-  io.valid := false.B
+  io.enable := false.B //Default outputs are OFF
+  io.valid := false.B //Default outputs are OFF
 
   
 
@@ -58,11 +58,11 @@ class Controller extends Module{
       io.enable := true.B
 
       when(io.rst){
-        state := idle
+        state := idle  //Reset immediately stops reception
       }
 
       .elsewhen(io.done){
-        io.valid := true.B
+        io.valid := true.B //If counter says 8 bits completed
         state := idle
       }
     }
@@ -87,7 +87,7 @@ class Counter extends Module{
 
   // internal variables
 // TODO: Define internal variables (registers and/or wires), if needed
-    val count = RegInit(0.U(4.W))
+    val count = RegInit(0.U(4.W))  //Creates 4-bit register initialized to 0.
 
   // state machine
  //TODO: Describe functionality if the counter as a state machine
@@ -117,7 +117,7 @@ class ShiftRegister extends Module{
   
   val io = IO(new Bundle {
   // TODO: Define IO ports of a the component as stated in the documentation
-         val enable = Input(Bool())
+    val enable = Input(Bool())
     val rst = Input(Bool())
     val rxd = Input(Bool())
 
@@ -139,13 +139,13 @@ class ShiftRegister extends Module{
   .elsewhen(io.enable){
 
     shiftReg := Cat(
-      shiftReg(6,0),
-      io.rxd
+      shiftReg(6,0), //Takes lower 7 bits of old register.
+      io.rxd   //Appends newest incoming serial bit.
     )
   }
 
   // Output connection
-  io.data := shiftReg
+  io.data := shiftReg  //Connects internal register to output port.
    
 }
 
@@ -176,7 +176,7 @@ class ReadSerial extends Module{
 
   // instanciation of modules
  //TODO: Instanciate the modules that you need
-   val controller = Module(new Controller())
+   val controller = Module(new Controller())  
   val counter = Module(new Counter())
   val shiftReg = Module(new ShiftRegister())
    
@@ -184,20 +184,20 @@ class ReadSerial extends Module{
   // connections between modules
 // TODO: connect the signals between the modules
   // Controller connections
-  controller.io.rxd := io.rxd
-  controller.io.done := counter.io.done
-  controller.io.rst := io.rst
+  controller.io.rxd := io.rxd //Pass serial input to controller.
+  controller.io.done := counter.io.done  //Counter tells controller when 8 bits finished.
+  controller.io.rst := io.rst //Connect reset to controller.
 
 
   // Counter connections
-  counter.io.enable := controller.io.enable
-  counter.io.rst := io.rst
+  counter.io.enable := controller.io.enable //Controller decides when counter should run.
+  counter.io.rst := io.rst  //Reset connected to counter.
 
 
   // Shift Register connections
-  shiftReg.io.enable := controller.io.enable
-  shiftReg.io.rst := io.rst
-  shiftReg.io.rxd := io.rxd
+  shiftReg.io.enable := controller.io.enable //Controller decides when shifting happens.
+  shiftReg.io.rst := io.rst  //Reset connected to counter.
+  shiftReg.io.rxd := io.rxd  //Incoming serial bit goes into shift register.
 
    
 

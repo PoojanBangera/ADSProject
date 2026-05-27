@@ -99,7 +99,7 @@ class Counter extends Module{
 
   .elsewhen(io.enable){
 
-    when(count === 7.U){
+    when(count === 8.U){
       io.done := true.B
       count := 0.U
     }

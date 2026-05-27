@@ -20,14 +20,53 @@ class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
   "FullAdder" should "work" in {
     test(new FullAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
-          /*dut.io.a.poke(...)
-           *dut.io.b.poke(...)
-           *dut.io.ci.poke(...)
-           *dut.io.s.expect(...)
-           *dut.io.co.expect(...)
-           *...
-           *TODO: Insert your test cases
-           */
+          dut.io.a.poke(false.B)
+          dut.io.b.poke(false.B)
+          dut.io.cin.poke(false.B)
+          dut.io.sum.expect(false.B)
+          dut.io.carry.expect(false.B)
+
+          dut.io.a.poke(false.B)
+          dut.io.b.poke(false.B)
+          dut.io.cin.poke(true.B)
+          dut.io.sum.expect(true.B)
+          dut.io.carry.expect(false.B)
+
+          dut.io.a.poke(false.B)
+          dut.io.b.poke(true.B)
+          dut.io.cin.poke(false.B)
+          dut.io.sum.expect(true.B)
+          dut.io.carry.expect(false.B)
+
+          dut.io.a.poke(false.B)
+          dut.io.b.poke(true.B)
+          dut.io.cin.poke(true.B)
+          dut.io.sum.expect(false.B)
+          dut.io.carry.expect(true.B)
+
+          dut.io.a.poke(true.B)
+          dut.io.b.poke(false.B)
+          dut.io.cin.poke(false.B)
+          dut.io.sum.expect(true.B)
+          dut.io.carry.expect(false.B)
+
+          dut.io.a.poke(true.B)
+          dut.io.b.poke(false.B)
+          dut.io.cin.poke(true.B)
+          dut.io.sum.expect(false.B)
+          dut.io.carry.expect(true.B)
+
+          dut.io.a.poke(true.B)
+          dut.io.b.poke(true.B)
+          dut.io.cin.poke(false.B)
+          dut.io.sum.expect(false.B)
+          dut.io.carry.expect(true.B)
+
+          dut.io.a.poke(true.B)
+          dut.io.b.poke(true.B)
+          dut.io.cin.poke(true.B)
+          dut.io.sum.expect(true.B)
+          dut.io.carry.expect(true.B)
 
         }
     } 

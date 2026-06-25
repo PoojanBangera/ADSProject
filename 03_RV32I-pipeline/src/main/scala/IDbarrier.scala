@@ -40,3 +40,39 @@ import uopc._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+
+class IDBarrier extends Module {
+
+  val io = IO(new Bundle {
+//Inputs from ID Stage
+    val inUOP         = Input(uopc())
+    val inRD          = Input(UInt(5.W))
+    val inOperandA    = Input(UInt(32.W))
+    val inOperandB    = Input(UInt(32.W))
+    val inXcptInvalid = Input(Bool())
+//Outputs to EX Stage
+    val outUOP         = Output(uopc())
+    val outRD          = Output(UInt(5.W))
+    val outOperandA    = Output(UInt(32.W))
+    val outOperandB    = Output(UInt(32.W))
+    val outXcptInvalid = Output(Bool())
+  })
+//Internal registers used to store ID stage outputs for one clock cycle.
+  val uopReg      = RegInit(uopc.NOP)
+  val rdReg       = RegInit(0.U(5.W))
+  val operandAReg = RegInit(0.U(32.W))
+  val operandBReg = RegInit(0.U(32.W))
+  val excReg      = RegInit(false.B)
+//Capture and store incoming values at each clock edge.
+  uopReg      := io.inUOP
+  rdReg       := io.inRD
+  operandAReg := io.inOperandA
+  operandBReg := io.inOperandB
+  excReg      := io.inXcptInvalid
+//Forward the stored values to the Execute stage.
+  io.outUOP         := uopReg
+  io.outRD          := rdReg
+  io.outOperandA    := operandAReg
+  io.outOperandB    := operandBReg
+  io.outXcptInvalid := excReg
+}

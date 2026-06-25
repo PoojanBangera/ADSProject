@@ -41,3 +41,21 @@ import chisel3._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+class WB extends Module {
+
+  val io = IO(new Bundle {
+
+    val aluResult = Input(UInt(32.W)) //input : Result from previous stages.
+    val rd        = Input(UInt(5.W))  //Destination register number.
+
+    val regFileReq = Output(new regFileWriteReq)  //output: Sends write request to Register File.
+
+    val check_res = Output(UInt(32.W))  //Sends result to the testbench.
+  })
+
+  io.regFileReq.addr  := io.rd   //Which register should receive the result?
+  io.regFileReq.data  := io.aluResult  //the value that should be written
+  io.regFileReq.wr_en := (io.rd =/= 0.U)  //Enable writing only if rd ≠ x0
+
+  io.check_res := io.aluResult  //Expose ALU result to the testbench.
+}

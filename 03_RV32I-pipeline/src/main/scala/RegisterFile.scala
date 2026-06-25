@@ -35,23 +35,43 @@ Functionality:
 // Register File
 // -----------------------------------------
 
-class regFileReadReq extends Bundle {
+class regFileReadReq extends Bundle {  //Tells the register file which register to read//if addr = 1 --> read x1
     //ToDo: implement bundle for read request
+    val addr = UInt(5.W)
 }
 
-class regFileReadResp extends Bundle {
+class regFileReadResp extends Bundle {  //Returns the value stored in the register// if x1=4 --> data =4    
     //ToDo: implement bundle for read response
+    val data = UInt(32.W)
 }
 
-class regFileWriteReq extends Bundle {
+class regFileWriteReq extends Bundle {  //Tells the register file what to write and where.//addr  = 3, data  = 9, wr_en = 1 --> Write 9 into x3
     //ToDo: implement bundle for write request
+    val addr  = UInt(5.W)
+    val data  = UInt(32.W)
+    val wr_en = Bool()
 }
 
 class regFile extends Module {
   val io = IO(new Bundle {
     //ToDo: Add I/O ports 
+    val req_1  = Input(new regFileReadReq)  // used to read rs1
+    val resp_1 = Output(new regFileReadResp)
+
+    val req_2  = Input(new regFileReadReq)  //used to read rs2
+    val resp_2 = Output(new regFileReadResp)
+
+    val req_3  = Input(new regFileWriteReq)  //Used by WB stage to write results.
 })
 
 //ToDo: Add your implementation according to the specification above here 
+val regs = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))  //created 32 registers and initializez them to zero
+
+io.resp_1.data := regs(io.req_1.addr)  //read port A
+io.resp_2.data := regs(io.req_2.addr)  // read port B //two ports becauseto read  two operands simultaneously
+
+when(io.req_3.wr_en && (io.req_3.addr =/= 0.U)) {  //write only if wr_en = true and addr !=0--> because x0 is hardwired to zero
+    regs(io.req_3.addr) := io.req_3.data  //write port  //Because one instruction writes only to one destination register
+}
 
 }

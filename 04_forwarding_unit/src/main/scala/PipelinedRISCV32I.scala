@@ -7,7 +7,7 @@
 /*
 This file contains the top-level module for the Pipelined RISC-V 32I core and acts as the interface between the core and external testbenches.
 */
-
+//This module is just a wrapper that connects the CPU core to the testbench.
 package PipelinedRV32I
 
 import chisel3._

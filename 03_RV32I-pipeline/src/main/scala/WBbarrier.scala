@@ -33,3 +33,21 @@ import chisel3._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+class WBBarrier extends Module {
+  val io = IO(new Bundle {
+    val inCheckRes    = Input(UInt(32.W))  //Receives the result from WB stage.
+    val inXcptInvalid = Input(Bool())   //Receives exception status.
+
+    val outCheckRes    = Output(UInt(32.W))  //Sends final result to top level.
+    val outXcptInvalid = Output(Bool())  //Sends final exception status.
+  })
+
+  val resReg = RegInit(0.U(32.W))  //Stores result.
+  val excReg = RegInit(false.B)  //Stores exception flag.
+
+  resReg := io.inCheckRes  //Save result.
+  excReg := io.inXcptInvalid  //Save exception status.
+
+  io.outCheckRes    := resReg  //Send stored result.
+  io.outXcptInvalid := excReg  //Send stored exception flag.
+}

@@ -104,7 +104,88 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
       dut.clock.step(1)
       dut.io.result.expect(1.U)     // SLTU x13, x5, x4
       dut.io.exception.expect(false.B)
-      dut.clock.step(1)           
+      dut.clock.step(1)   
+
+      /*dut.io.result.expect("hFFFFFFFF".U) // ADDI x14, x0, -1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect("hFFFFFFFF".U) // ORI x15, x14, 255
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(15.U)          // ANDI x16, x14, 15
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect("hFFFFFF00".U) // XORI x17, x14, 255
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(1.U)           // SLTI x21, x14, 1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1) 
+
+println("RESULT1 = " + dut.io.result.peek().litValue) // ADDI x14, x0, -1
+dut.io.exception.expect(false.B)
+dut.clock.step(1)
+
+/*println("RESULT2 = " + dut.io.result.peek().litValue) // ORI x15, x14, 255
+dut.io.exception.expect(false.B)
+dut.clock.step(1)
+
+println("RESULT3 = " + dut.io.result.peek().litValue) // ANDI x16, x14, 15
+dut.io.exception.expect(false.B)
+dut.clock.step(1)
+
+println("RESULT4 = " + dut.io.result.peek().litValue) // XORI x17, x14, 255
+dut.io.exception.expect(false.B)
+dut.clock.step(1)
+
+println("RESULT5 = " + dut.io.result.peek().litValue) // SLTI x21, x14, 1
+dut.io.exception.expect(false.B)
+dut.clock.step(1) */*/
+
+      dut.io.result.expect("hFFFFFFFF".U) // ADDI x14, x0, -1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(15.U) // ADDI x16, x0, 15
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+    //new 
+      dut.io.result.expect(255.U) // XORI x15,x0,255
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(255.U) // ORI x17,x0,255
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(0.U) // ANDI x18,x0,255
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(1.U) // SLTI x19,x0,1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(1.U) // SLTIU x20,x0,1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(10.U) // SLLI x18,x2,1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(2.U) // SRLI x19,x2,1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(2.U) // SRAI x20,x2,1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
     }
   }
 }

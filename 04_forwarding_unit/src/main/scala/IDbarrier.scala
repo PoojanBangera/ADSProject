@@ -40,3 +40,71 @@ import uopc._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+
+class IDBarrier extends Module {
+
+  val io = IO(new Bundle {
+//Inputs from ID Stage
+    val inUOP         = Input(uopc())
+    val inRD          = Input(UInt(5.W))
+
+    val inRS1         = Input(UInt(5.W))
+    val inRS2         = Input(UInt(5.W))
+
+    val inOperandA    = Input(UInt(32.W))
+    val inOperandB    = Input(UInt(32.W))
+    val inXcptInvalid = Input(Bool())
+//Outputs to EX Stage
+    val outUOP         = Output(uopc())
+    val outRD          = Output(UInt(5.W))
+
+    val outRS1         = Output(UInt(5.W))  //These receive the source register numbers (rs1 and rs2) from the ID stage.
+    val outRS2         = Output(UInt(5.W))
+
+    val outOperandA    = Output(UInt(32.W))
+    val outOperandB    = Output(UInt(32.W))
+    val outXcptInvalid = Output(Bool())
+  })
+//Internal registers used to store ID stage outputs for one clock cycle.
+  val uopReg      = RegInit(uopc.NOP)
+  val rdReg       = RegInit(0.U(5.W))
+
+  val rs1Reg      = RegInit(0.U(5.W)) //These store the register numbers for one clock cycle, just like the other pipeline signals.
+  val rs2Reg      = RegInit(0.U(5.W))
+
+  val operandAReg = RegInit(0.U(32.W))
+  val operandBReg = RegInit(0.U(32.W))
+  val excReg      = RegInit(false.B)
+//Capture and store incoming values at each clock edge.
+  uopReg      := io.inUOP
+  rdReg       := io.inRD
+
+  rs1Reg      := io.inRS1  //This saves the source register numbers when the clock ticks.
+  rs2Reg      := io.inRS2
+
+  operandAReg := io.inOperandA
+  operandBReg := io.inOperandB
+  excReg      := io.inXcptInvalid
+//Forward the stored values to the Execute stage.
+  io.outUOP         := uopReg
+  io.outRD          := rdReg
+
+  io.outRS1         := rs1Reg  //These outputs are connected to the Forwarding Unit.
+  io.outRS2         := rs2Reg
+
+  io.outOperandA    := operandAReg
+  io.outOperandB    := operandBReg
+  io.outXcptInvalid := excReg
+}
+
+/*Why was this needed?
+
+The Forwarding Unit compares:
+
+rs1_EX, rs2_EX
+
+with
+
+rd_MEM, rd_WB
+
+to detect data hazards.*/

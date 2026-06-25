@@ -35,4 +35,29 @@ import chisel3._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+//The EXBarrier is completely unchanged for forwarding. Its only job is to store the outputs of the EX stage for one clock cycle and pass 
+//them to the MEM stage.
+class EXBarrier extends Module {
+  val io = IO(new Bundle {
+    val inAluResult   = Input(UInt(32.W))  //ALU result from EX stage.
+    val inRD          = Input(UInt(5.W))  //Destination register number.
+    val inXcptInvalid = Input(Bool())   //Exception flag from EX stage.
+
+    val outAluResult   = Output(UInt(32.W))  //Same values sent to MEM stage one cycle later.
+    val outRD          = Output(UInt(5.W))
+    val outXcptInvalid = Output(Bool())
+  })
+
+  val aluReg  = RegInit(0.U(32.W))  //Stores ALU result.
+  val rdReg   = RegInit(0.U(5.W))  //Stores destination register.
+  val excReg  = RegInit(false.B)  //Stores exception flag.
+
+  aluReg := io.inAluResult  //Save ALU result.
+  rdReg  := io.inRD           //saves destination register
+  excReg := io.inXcptInvalid    //Save exception status.
+
+  io.outAluResult   := aluReg  //Forward stored ALU result.
+  io.outRD          := rdReg    //Forward stored destination register.
+  io.outXcptInvalid := excReg  //Forward stored exception flag.
+}
 

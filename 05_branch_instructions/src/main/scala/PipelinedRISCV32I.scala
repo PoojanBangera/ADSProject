@@ -7,7 +7,7 @@
 /*
 This file contains the top-level module for the Pipelined RISC-V 32I core and acts as the interface between the core and external testbenches.
 */
-
+//This module is just a wrapper that connects the CPU core to the testbench.
 package PipelinedRV32I
 
 import chisel3._
@@ -22,7 +22,7 @@ val io = IO(new Bundle {
   val exception = Output(Bool())
  })
   
-  val core = Module(new PipelinedRV32Icore(BinaryFile))
+  val core = Module(new PipelinedRV32Icore(BinaryFile)) 
 
   io.result    := core.io.check_res
   io.exception := core.io.exception

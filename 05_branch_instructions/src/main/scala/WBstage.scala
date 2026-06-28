@@ -36,8 +36,40 @@ package core_tile
 
 import chisel3._
 
+import uopc._
+
 // -----------------------------------------
 // Writeback Stage
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+class WB extends Module {
+
+  val io = IO(new Bundle {
+
+    val aluResult = Input(UInt(32.W)) //input : Result from previous stages.
+    val rd        = Input(UInt(5.W))  //Destination register number.
+
+    val linkAddress = Input(UInt(32.W))
+val uop         = Input(uopc())
+
+    val regFileReq = Output(new regFileWriteReq)  //output: Sends write request to Register File.
+
+    val check_res = Output(UInt(32.W))  //Sends result to the testbench.
+  })
+
+  
+  val writeData = Wire(UInt(32.W))
+
+writeData := io.aluResult
+
+when(io.uop === JAL || io.uop === JALR) {
+  writeData := io.linkAddress
+}
+  
+  io.regFileReq.addr  := io.rd   //Which register should receive the result?
+io.regFileReq.data := writeData
+  io.regFileReq.wr_en := (io.rd =/= 0.U)  //Enable writing only if rd ≠ x0
+
+io.check_res := writeData
+}

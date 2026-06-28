@@ -19,7 +19,6 @@ Internal Signals:
 Functionality:
     Fetch the instruction at the current PC (word-aligned addressing)
     Increment the PC (word-aligned) each clock cycle to fetch the next sequential instruction
-    Handle flushes due to mispredicted branches
 
 Parameters:
     BinaryFile: String - path to the binary file to load into instruction memory
@@ -43,8 +42,33 @@ import chisel3.util.experimental.loadMemoryFromFile
 class IF (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
     // ToDo: Add I/O ports
+    val instr = Output(UInt(32.W))  //this is the output ( fetched instruction)
+    val pc = Output(UInt(32.W))
+
+    val redirectPC     = Input(Bool())
+val redirectTarget = Input(UInt(32.W))
   })
 
 //ToDo: Add your implementation according to the specification above here 
+ // Instruction Memory
+  val IMem = Mem(4096, UInt(32.W))  //means 4096 instructions 32 bits each //4096 entries because 4096 (2¹²) is a convenient power-of-two size commonly used in digital hardware
+  loadMemoryFromFile(IMem, BinaryFile)  //loads BinaryFile_pipelined into memory
+
+  // Program Counter
+  val PC = RegInit(0.U(32.W))  //Program counter
+
+  io.pc := PC
+
+  // Fetch instruction
+  io.instr := IMem(PC)  //Read instruction at current PC
+
+  // Increment PC
+  ///PC := PC + 1.U  //increment PC to fetch the instructions in sequence
+
+  when(io.redirectPC) {
+  PC := io.redirectTarget
+}.otherwise {
+  PC := PC + 1.U
+}
   
 }

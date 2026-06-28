@@ -39,8 +39,41 @@ import uopc._
 class ForwardingUnit extends Module {
   val io = IO(new Bundle {
     // Add I/O ports according to the specification above here
+
+    val rs1_EX   = Input(UInt(5.W))  //This is the first source register of the instruction currently in the EX stage.
+    val rs2_EX   = Input(UInt(5.W))
+
+    val rd_MEM   = Input(UInt(5.W))  //This is the destination register of the instruction currently in the MEM stage.
+    val rd_WB    = Input(UInt(5.W))  //Destination register of the instruction in WB stage.
+
+    val wrEn_MEM = Input(Bool())  //Indicates whether the MEM-stage instruction will write to the register file.
+    val wrEn_WB  = Input(Bool())  //Same thing for the WB stage.
+
+    val forwardA = Output(UInt(2.W))  //This is the control signal sent to the EX stage telling it where Operand A should come from.
+    val forwardB = Output(UInt(2.W))
+  /* 00 → Use Register File
+
+10 → Forward from MEM stage
+
+01 → Forward from WB stage*/ 
   })
 
   //ToDo: Add your implementation according to the specification above here 
+  io.forwardA := "b00".U  //No forwarding required. //To ensure a safe default value and avoid undefined control signals if no forwarding condition is satisfied.
+  io.forwardB := "b00".U
+
+  when(io.wrEn_MEM && (io.rd_MEM =/= 0.U) && (io.rd_MEM === io.rs1_EX)) {  //This checks three conditions. //io.wrEn_MEM=The MEM instruction must actually write a register.//3rd confition-->checks whether the register being written by the instruction in the MEM stage is the same register needed as source operand rs1 by the instruction in the EX stage, indicating a potential data hazard.(raw hazard)
+    io.forwardA := "b10".U
+  }.elsewhen(io.wrEn_WB && (io.rd_WB =/= 0.U) && (io.rd_WB === io.rs1_EX)) {
+    io.forwardA := "b01".U
+  }
+
+  when(io.wrEn_MEM && (io.rd_MEM =/= 0.U) && (io.rd_MEM === io.rs2_EX)) {
+    io.forwardB := "b10".U
+  }.elsewhen(io.wrEn_WB && (io.rd_WB =/= 0.U) && (io.rd_WB === io.rs2_EX)) {
+    io.forwardB := "b01".U 
+  }
+
+  printf(p"rs1=${io.rs1_EX} rs2=${io.rs2_EX} rdMEM=${io.rd_MEM} rdWB=${io.rd_WB} fA=${io.forwardA} fB=${io.forwardB}\n")
 
 }

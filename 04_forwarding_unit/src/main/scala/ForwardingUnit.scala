@@ -59,7 +59,7 @@ class ForwardingUnit extends Module {
   })
 
   //ToDo: Add your implementation according to the specification above here 
-  io.forwardA := "b00".U  //No forwarding required.
+  io.forwardA := "b00".U  //No forwarding required. //To ensure a safe default value and avoid undefined control signals if no forwarding condition is satisfied.
   io.forwardB := "b00".U
 
   when(io.wrEn_MEM && (io.rd_MEM =/= 0.U) && (io.rd_MEM === io.rs1_EX)) {  //This checks three conditions. //io.wrEn_MEM=The MEM instruction must actually write a register.//3rd confition-->checks whether the register being written by the instruction in the MEM stage is the same register needed as source operand rs1 by the instruction in the EX stage, indicating a potential data hazard.(raw hazard)

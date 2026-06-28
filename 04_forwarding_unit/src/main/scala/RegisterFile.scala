@@ -92,3 +92,4 @@ when(io.req_3.wr_en && (io.req_3.addr =/= 0.U)) {  //write only if wr_en = true 
 printf(p"READ rs1=${io.req_1.addr} -> ${io.resp_1.data}, rs2=${io.req_2.addr} -> ${io.resp_2.data}\n")
 
 }
+

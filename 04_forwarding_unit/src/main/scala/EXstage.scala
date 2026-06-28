@@ -56,8 +56,8 @@ class EX extends Module {
   val forwardA     = Input(UInt(2.W))  //forwardA and forwardB tell the EX stage whether forwarding is needed.
   val forwardB     = Input(UInt(2.W))
 
-  val memResult    = Input(UInt(32.W))  //carries the ALU result from the MEM stage.
-  val wbResult     = Input(UInt(32.W))  //carries the ALU result from the WB stage.
+  val memResult    = Input(UInt(32.W))  //fwd//carries the ALU result from the MEM stage.
+  val wbResult     = Input(UInt(32.W))  //fwd// carries the ALU result from the WB stage.
 
   val xcptInvalid  = Input(Bool())
 
